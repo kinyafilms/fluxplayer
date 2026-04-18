@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FluxPlayer Native Demo</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            overflow: hidden;
+        }
+        #player {
+            width: 100vw;
+            height: 100vh;
+        }
+    </style>
+</head>
+<body>
+    <div id="player"></div>
+
+    <script type="module">
+        import { FluxPlayer } from '../src/index.ts';
+
+        const player = new FluxPlayer({
+            container: '#player',
+            url: 'https://pub-1f40055d0d024e10aab8d8d5fedf23bc.r2.dev/videos/oknsvsrq6e/hls/v0/index.m3u8',
+            autoplay: true,
+            muted: true,
+        });
+
+        player.on('play', () => console.log('FluxPlayer: Playing'));
+    </script>
+</body>
+</html>

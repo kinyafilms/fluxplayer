@@ -1,0 +1,97 @@
+@import "tailwindcss";
+
+@theme {
+  --color-flux-cyan: #00ffff;
+}
+
+/* 1. Universal Glass Island Styling */
+.artplayer-app .art-control {
+  @apply bg-transparent border-none flex items-center justify-center !important;
+}
+
+/* Target our custom-named islands individually for cleaner parsing */
+.artplayer-app .art-control-flux-play,
+.artplayer-app .art-control-flux-volume,
+.artplayer-app .art-control-flux-settings,
+.artplayer-app .art-control-flux-pip,
+.artplayer-app .art-control-flux-theater,
+.artplayer-app .art-control-flux-fullscreen {
+  background-color: rgba(0, 0, 0, 0.45) !important;
+  backdrop-filter: blur(25px) !important;
+  border-radius: 12px !important;
+  padding: 10px !important;
+  margin: 0 6px !important;
+  border: 1px solid rgba(0, 255, 255, 0.1) !important;
+  transition: all 0.3s ease !important;
+  box-shadow: 0 0 15px rgba(0, 255, 255, 0.05) !important;
+  cursor: pointer !important;
+}
+
+.artplayer-app .art-control-flux-play:hover,
+.artplayer-app .art-control-flux-volume:hover,
+.artplayer-app .art-control-flux-settings:hover,
+.artplayer-app .art-control-flux-pip:hover,
+.artplayer-app .art-control-flux-theater:hover,
+.artplayer-app .art-control-flux-fullscreen:hover {
+  background-color: rgba(0, 255, 255, 0.1) !important;
+  border-color: rgba(0, 255, 255, 0.3) !important;
+  transform: scale(1.1) !important;
+}
+
+.artplayer-app .art-control svg {
+  color: #00ffff !important;
+  filter: drop-shadow(0 0 5px rgba(0, 255, 255, 0.5)) !important;
+}
+
+/* 2. Progress Bar (Pure Cyan) */
+.artplayer-app .art-progress {
+  height: 4px !important;
+  transition: all 0.3s ease !important;
+  margin-top: 8px !important;
+}
+
+.artplayer-app .art-progress:hover {
+  height: 6px !important;
+}
+
+.artplayer-app .art-progress-played {
+  background: #00ffff !important;
+}
+
+.artplayer-app .art-progress-indicator {
+  background: #00ffff !important;
+  width: 14px !important;
+  height: 14px !important;
+  box-shadow: 0 0 15px #00ffff !important;
+  border: none !important;
+}
+
+/* 3. Theater Mode (Cyan Portal) */
+.artplayer-app.theater-mode {
+  width: 100vw !important;
+  height: 100vh !important;
+  max-width: none !important;
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  border: 2px solid #00ffff !important;
+}
+
+/* 4. Settings Panel (Glassmorphism) */
+.artplayer-app .art-setting {
+  background-color: rgba(0, 0, 0, 0.7) !important;
+  backdrop-filter: blur(40px) !important;
+  border: 1px solid rgba(0, 255, 255, 0.2) !important;
+  border-radius: 20px !important;
+  overflow: hidden !important;
+}
+
+.artplayer-app .art-setting-item:hover {
+  background-color: rgba(0, 255, 255, 0.1) !important;
+}
+
+.artplayer-app .art-setting-item-left {
+  color: #00ffff !important;
+  font-weight: 500 !important;
+}
