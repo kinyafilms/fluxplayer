@@ -1,12 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>FluxPlayer Native Demo</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        body, html {
+        body,
+        html {
             margin: 0;
             padding: 0;
             width: 100%;
@@ -14,12 +16,14 @@
             background: #000;
             overflow: hidden;
         }
+
         #player {
             width: 100vw;
             height: 100vh;
         }
     </style>
 </head>
+
 <body>
     <div id="player"></div>
 
@@ -28,7 +32,8 @@
 
         const player = new FluxPlayer({
             container: '#player',
-            url: 'https://pub-1f40055d0d024e10aab8d8d5fedf23bc.r2.dev/videos/oknsvsrq6e/hls/v0/index.m3u8',
+            // url: 'https://pub-1f40055d0d024e10aab8d8d5fedf23bc.r2.dev/videos/oknsvsrq6e/hls/v0/index.m3u8',
+            url: 'https://vz-44d28b77-702.b-cdn.net/59eec274-f007-433b-a4fd-ba3cd319bb8e/playlist.m3u8',
             logoUrl: 'https://hunhqcyiabjnxbwpjlma.supabase.co/storage/v1/object/public/kinyafilms_movie_bucket/logos/Troll@.png',
             logoAlt: 'Troll 2',
             logoLabel: 'Movie',
@@ -47,4 +52,5 @@
         });
     </script>
 </body>
+
 </html>

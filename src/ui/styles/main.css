@@ -16,7 +16,7 @@
 .art-video-player video {
     width: 100% !important;
     height: 100% !important;
-    object-fit: contain !important;
+    object-fit: fill !important;
 }
 
 /* Layer visibility and auto-hide */
@@ -28,6 +28,25 @@
     pointer-events: none;
     opacity: 0;
     transition: opacity 0.4s ease;
+}
+
+/* Loading Spinner */
+.art-loading {
+    background: rgba(0, 0, 0, 0.4) !important;
+    backdrop-filter: blur(10px);
+}
+
+.art-loading .art-icon {
+    width: 60px !important;
+    height: 60px !important;
+    color: var(--color-flux-blue) !important;
+    filter: drop-shadow(0 0 15px var(--color-flux-blue));
+    animation: flux-spin 1.5s linear infinite;
+}
+
+@keyframes flux-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
 }
 
 .art-video-player .art-layer>* {
@@ -103,6 +122,93 @@
 .flux-volume-wrapper:hover .flux-volume-slider-container,
 .flux-volume-wrapper.is-expanded .flux-volume-slider-container {
     width: 70px;
+}
+
+/* Quality Switcher */
+.flux-quality-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.flux-quality-btn {
+    padding: 0 10px;
+    height: 35px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    cursor: pointer;
+    color: #fff;
+    background: rgba(255, 255, 255, 0.1);
+    backdrop-filter: blur(10px);
+    border-radius: 8px;
+    transition: all 0.2s ease;
+}
+
+.flux-quality-current {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    opacity: 0.9;
+    pointer-events: none;
+}
+
+.flux-quality-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.05);
+}
+
+.flux-quality-btn svg {
+    width: 18px;
+    height: 18px;
+}
+
+.flux-quality-menu {
+    position: absolute;
+    top: 50px;
+    right: 0;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(20px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 8px;
+    min-width: 120px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.flux-quality-wrapper.is-open .flux-quality-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.flux-quality-item {
+    padding: 8px 12px;
+    border-radius: 6px;
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    text-align: left;
+}
+
+.flux-quality-item:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+}
+
+.flux-quality-item.is-active {
+    background: var(--color-flux-blue);
+    color: #000 !important;
+    font-weight: 700;
 }
 
 .flux-volume-slider {

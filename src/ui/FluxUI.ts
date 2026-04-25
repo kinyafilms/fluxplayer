@@ -24,6 +24,13 @@ export function FluxUI(art: Artplayer) {
                <input type="range" class="flux-volume-slider" min="0" max="1" step="0.05" value="${art.volume}">
             </div>
           </div>
+          <div class="flux-quality-wrapper">
+            <div class="flux-quality-btn">
+              ${Icons.settings}
+              <span class="flux-quality-current">Auto</span>
+            </div>
+            <div class="flux-quality-menu"></div>
+          </div>
           <div class="flux-fullscreen-btn">${Icons.fullscreen}</div>
         </div>
         <div class="flux-top-right"></div>
@@ -78,7 +85,97 @@ export function FluxUI(art: Artplayer) {
         art.fullscreen = !art.fullscreen;
       });
 
-      // Mobile orientation lock on fullscreen
+      // Quality Toggle
+      const qualityBtn = $el.querySelector('.flux-quality-btn');
+      const qualityMenu = $el.querySelector('.flux-quality-menu');
+      const qualityWrapper = $el.querySelector('.flux-quality-wrapper');
+
+      qualityBtn?.addEventListener('click', (e) => {
+        e.stopPropagation();
+        qualityWrapper?.classList.toggle('is-open');
+      });
+
+      // Close menu when clicking outside
+      window.addEventListener('click', () => {
+        qualityWrapper?.classList.remove('is-open');
+      });
+
+      // Populate Quality Menu
+      const qualityCurrent = $el.querySelector('.flux-quality-current');
+      const updateQualityMenu = () => {
+        if (!qualityMenu) return;
+        
+        let html = '';
+        let currentLabel = 'Auto';
+        
+        // If HLS levels exist
+        const hls = (art as any).hls;
+        if (hls && hls.levels && hls.levels.length > 0) {
+            html += `<div class="flux-quality-item ${hls.currentLevel === -1 ? 'is-active' : ''}" data-level="-1">Auto</div>`;
+            if (hls.currentLevel === -1) currentLabel = 'Auto';
+
+            hls.levels.forEach((level: any, index: number) => {
+                // Better label generation: check for name, then height, then fallback to index
+                let label = level.name;
+                if (!label && level.height && level.height > 0) {
+                    label = `${level.height}P`;
+                }
+                if (!label) {
+                    label = `Quality ${index + 1}`;
+                }
+
+                const isActive = hls.currentLevel === index;
+                html += `<div class="flux-quality-item ${isActive ? 'is-active' : ''}" data-level="${index}">${label}</div>`;
+                if (isActive) currentLabel = label;
+            });
+        } else if (art.option.quality && art.option.quality.length > 0) {
+            art.option.quality.forEach((item: any) => {
+                const isActive = art.option.url === item.url;
+                html += `<div class="flux-quality-item ${isActive ? 'is-active' : ''}" data-url="${item.url}">${item.html}</div>`;
+                if (isActive) currentLabel = item.html;
+            });
+        }
+
+        if (qualityCurrent) qualityCurrent.textContent = currentLabel;
+        qualityMenu.innerHTML = html;
+
+        // Bind clicks
+        qualityMenu.querySelectorAll('.flux-quality-item').forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.stopPropagation();
+                const level = (item as HTMLElement).dataset.level;
+                const url = (item as HTMLElement).dataset.url;
+
+                if (level !== undefined && hls) {
+                    art.loading.show = true;
+                    hls.currentLevel = parseInt(level);
+                } else if (url) {
+                    art.loading.show = true;
+                    art.switchQuality(url);
+                }
+                
+                qualityWrapper?.classList.remove('is-open');
+                updateQualityMenu();
+            });
+        });
+      };
+
+      art.on('ready', updateQualityMenu);
+      art.on('video:loadedmetadata', updateQualityMenu);
+
+      // Mobile orientation lock on fullscreen and initialization
+      const lockOrientation = () => {
+        const orientation = screen.orientation as any;
+        if (orientation && orientation.lock) {
+          orientation.lock('landscape').catch(() => {
+            // Silently fail if not supported or gesture missing
+          });
+        }
+      };
+
+      art.on('ready', lockOrientation);
+      art.on('video:play', lockOrientation);
+
       art.on('fullscreen', (state) => {
         const orientation = screen.orientation as any;
         if (state && orientation && orientation.lock) {
