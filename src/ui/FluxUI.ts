@@ -163,7 +163,19 @@ export function FluxUI(art: Artplayer) {
       art.on('ready', updateQualityMenu);
       art.on('video:loadedmetadata', updateQualityMenu);
 
-      // Mobile orientation lock on fullscreen
+      // Mobile orientation lock on fullscreen and initialization
+      const lockOrientation = () => {
+        const orientation = screen.orientation as any;
+        if (orientation && orientation.lock) {
+          orientation.lock('landscape').catch(() => {
+            // Silently fail if not supported or gesture missing
+          });
+        }
+      };
+
+      art.on('ready', lockOrientation);
+      art.on('video:play', lockOrientation);
+
       art.on('fullscreen', (state) => {
         const orientation = screen.orientation as any;
         if (state && orientation && orientation.lock) {
