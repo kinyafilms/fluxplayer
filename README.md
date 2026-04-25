@@ -49,6 +49,26 @@ player.on('play', () => {
 });
 ```
 
+### API & Events
+
+You can easily access the player's state and listen for playback events:
+
+```javascript
+// Access current state
+console.log('Current Time:', player.currentTime); // In seconds
+console.log('Total Duration:', player.duration);  // In seconds
+
+// Listen for time updates
+player.on('timeupdate', (data) => {
+    console.log(`Progress: ${data.currentTime} / ${data.duration}`);
+});
+
+// Control playback
+player.play();
+player.pause();
+player.seek(120); // Seek to 2 minutes
+```
+
 ### HTML Structure
 
 ```html

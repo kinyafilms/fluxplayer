@@ -37,6 +37,14 @@
         });
 
         player.on('play', () => console.log('FluxPlayer: Playing'));
+
+        player.on('timeupdate', (data) => {
+            console.log(`Time: ${data.currentTime.toFixed(2)} / ${data.duration.toFixed(2)}`);
+            // Also testing direct getters
+            if (Math.round(data.currentTime) % 10 === 0) {
+                console.log('Direct Getters -> Current:', player.currentTime, 'Total:', player.duration);
+            }
+        });
     </script>
 </body>
 </html>
