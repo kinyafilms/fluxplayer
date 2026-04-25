@@ -1,6 +1,6 @@
 {
   "name": "fluxplayer",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "",
   "main": "./dist/fluxplayer.umd.js",
   "module": "./dist/fluxplayer.es.js",
