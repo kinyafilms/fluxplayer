@@ -29,8 +29,11 @@
         const player = new FluxPlayer({
             container: '#player',
             url: 'https://pub-1f40055d0d024e10aab8d8d5fedf23bc.r2.dev/videos/oknsvsrq6e/hls/v0/index.m3u8',
+            logoUrl: 'https://hunhqcyiabjnxbwpjlma.supabase.co/storage/v1/object/public/kinyafilms_movie_bucket/logos/Troll@.png',
+            logoAlt: 'Troll 2',
+            logoLabel: 'Movie',
             autoplay: true,
-            muted: true,
+            muted: false,
         });
 
         player.on('play', () => console.log('FluxPlayer: Playing'));

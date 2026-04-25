@@ -1,8 +1,11 @@
-import type Option from 'artplayer/types/option';
+import type { Option } from 'artplayer';
 
 export interface FluxPlayerOptions extends Partial<Option> {
-  container: string | HTMLElement;
+  container: string | HTMLDivElement;
   url: string;
+  logoUrl?: string;
+  logoAlt?: string;
+  logoLabel?: string;
 }
 
 export type FluxEvents = {

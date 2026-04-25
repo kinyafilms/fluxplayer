@@ -1,97 +1,328 @@
 @import "tailwindcss";
 
 @theme {
-  --color-flux-cyan: #00ffff;
+    --color-flux-blue: #1fd6fb;
+    --color-flux-dark: rgba(0, 0, 0, 0.6);
 }
 
-/* 1. Universal Glass Island Styling */
-.artplayer-app .art-control {
-  @apply bg-transparent border-none flex items-center justify-center !important;
+/* Base resets */
+.art-video-player .art-control {
+    @apply !bg-transparent !border-none !flex !items-center !justify-center;
 }
 
-/* Target our custom-named islands individually for cleaner parsing */
-.artplayer-app .art-control-flux-play,
-.artplayer-app .art-control-flux-volume,
-.artplayer-app .art-control-flux-settings,
-.artplayer-app .art-control-flux-pip,
-.artplayer-app .art-control-flux-theater,
-.artplayer-app .art-control-flux-fullscreen {
-  background-color: rgba(0, 0, 0, 0.45) !important;
-  backdrop-filter: blur(25px) !important;
-  border-radius: 12px !important;
-  padding: 10px !important;
-  margin: 0 6px !important;
-  border: 1px solid rgba(0, 255, 255, 0.1) !important;
-  transition: all 0.3s ease !important;
-  box-shadow: 0 0 15px rgba(0, 255, 255, 0.05) !important;
-  cursor: pointer !important;
+/* Ensure video and all containers fill the entire height of the parent div */
+.art-video-player,
+.art-video-player .art-video-container,
+.art-video-player video {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain !important;
 }
 
-.artplayer-app .art-control-flux-play:hover,
-.artplayer-app .art-control-flux-volume:hover,
-.artplayer-app .art-control-flux-settings:hover,
-.artplayer-app .art-control-flux-pip:hover,
-.artplayer-app .art-control-flux-theater:hover,
-.artplayer-app .art-control-flux-fullscreen:hover {
-  background-color: rgba(0, 255, 255, 0.1) !important;
-  border-color: rgba(0, 255, 255, 0.3) !important;
-  transform: scale(1.1) !important;
+/* Layer visibility and auto-hide */
+.art-video-player .art-layers {
+    pointer-events: none;
 }
 
-.artplayer-app .art-control svg {
-  color: #00ffff !important;
-  filter: drop-shadow(0 0 5px rgba(0, 255, 255, 0.5)) !important;
+.art-video-player .art-layer {
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.4s ease;
 }
 
-/* 2. Progress Bar (Pure Cyan) */
-.artplayer-app .art-progress {
-  height: 4px !important;
-  transition: all 0.3s ease !important;
-  margin-top: 8px !important;
+.art-video-player .art-layer>* {
+    pointer-events: auto;
 }
 
-.artplayer-app .art-progress:hover {
-  height: 6px !important;
+.art-video-player.art-hover .art-layer,
+.art-video-player.art-state-pause .art-layer {
+    opacity: 1;
 }
 
-.artplayer-app .art-progress-played {
-  background: #00ffff !important;
+/* 1. TOP BAR */
+.flux-top-bar {
+    position: absolute;
+    top: 20px;
+    left: 0;
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 40px;
+    z-index: 10;
 }
 
-.artplayer-app .art-progress-indicator {
-  background: #00ffff !important;
-  width: 14px !important;
-  height: 14px !important;
-  box-shadow: 0 0 15px #00ffff !important;
-  border: none !important;
+.flux-top-left {
+    width: 40px;
 }
 
-/* 3. Theater Mode (Cyan Portal) */
-.artplayer-app.theater-mode {
-  width: 100vw !important;
-  height: 100vh !important;
-  max-width: none !important;
-  position: fixed !important;
-  top: 0;
-  left: 0;
-  z-index: 9999;
-  border: 2px solid #00ffff !important;
+/* Removed quality selector styles */
+
+.flux-btn-group {
+    display: flex;
+    background: rgba(31, 214, 251, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 8px;
+    padding: 8px 16px;
+    gap: 20px;
+    border: 1px solid rgba(31, 214, 251, 0.3);
 }
 
-/* 4. Settings Panel (Glassmorphism) */
-.artplayer-app .art-setting {
-  background-color: rgba(0, 0, 0, 0.7) !important;
-  backdrop-filter: blur(40px) !important;
-  border: 1px solid rgba(0, 255, 255, 0.2) !important;
-  border-radius: 20px !important;
-  overflow: hidden !important;
+.flux-volume-btn,
+.flux-fullscreen-btn {
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
 }
 
-.artplayer-app .art-setting-item:hover {
-  background-color: rgba(0, 255, 255, 0.1) !important;
+.flux-volume-wrapper {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    transition: all 0.3s ease;
 }
 
-.artplayer-app .art-setting-item-left {
-  color: #00ffff !important;
-  font-weight: 500 !important;
+.flux-volume-wrapper:hover,
+.flux-volume-wrapper.is-expanded {
+    gap: 10px;
+}
+
+.flux-volume-slider-container {
+    width: 0;
+    overflow: hidden;
+    transition: width 0.3s ease;
+    display: flex;
+    align-items: center;
+}
+
+.flux-volume-wrapper:hover .flux-volume-slider-container,
+.flux-volume-wrapper.is-expanded .flux-volume-slider-container {
+    width: 70px;
+}
+
+.flux-volume-slider {
+    -webkit-appearance: none;
+    width: 70px;
+    height: 4px;
+    background: linear-gradient(to right, var(--color-flux-blue) 0%, var(--color-flux-blue) var(--vol-percent, 100%), rgba(255, 255, 255, 0.2) var(--vol-percent, 100%), rgba(255, 255, 255, 0.2) 100%);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+}
+
+.flux-volume-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 12px;
+    height: 12px;
+    background: var(--color-flux-blue);
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 0 8px rgba(31, 214, 251, 0.4);
+}
+
+.flux-volume-slider::-moz-range-thumb {
+    width: 12px;
+    height: 12px;
+    background: var(--color-flux-blue);
+    border-radius: 50%;
+    cursor: pointer;
+    border: none;
+}
+
+.flux-volume-btn:hover,
+.flux-fullscreen-btn:hover {
+    transform: scale(1.1);
+}
+
+.flux-top-right {
+    width: 40px;
+    /* Match back button width for centering */
+}
+
+/* 2. CENTER UI */
+.flux-center-ui {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    z-index: 100;
+}
+
+.flux-play-center {
+    width: 50px;
+    height: 50px;
+    background: rgba(31, 214, 251, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    padding: 12px;
+    color: white;
+    transition: transform 0.2s;
+    border: 1px solid rgba(31, 214, 251, 0.3);
+}
+
+.flux-play-center:hover {
+    transform: scale(1.1);
+    background: rgba(31, 214, 251, 0.4);
+}
+
+.flux-skip-btn {
+    width: 35px;
+    height: 35px;
+    background: rgba(31, 214, 251, 0.2);
+    backdrop-filter: blur(10px);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: white;
+    position: relative;
+    padding: 6px;
+    /* Reduced padding to make icons larger */
+    border: 1px solid rgba(31, 214, 251, 0.3);
+    transition: transform 0.2s;
+}
+
+.flux-skip-btn:hover {
+    transform: scale(1.1);
+    background: rgba(31, 214, 251, 0.4);
+}
+
+/* Hide default Artplayer state/loading/notices to avoid duplicates */
+.art-video-player .art-state,
+.art-video-player .art-loading,
+.art-video-player .art-notice {
+    display: none !important;
+}
+
+.skip-val {
+    position: absolute;
+    font-size: 8px;
+    /* Slightly smaller font for better fit */
+    font-weight: 800;
+    top: 54%;
+    /* Fine-tuned for visual center of Lucide rotate icons */
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+/* 3. BOTTOM UI */
+.flux-bottom-ui {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 0 40px 30px 40px;
+    display: flex;
+    flex-direction: column;
+    z-index: 10;
+    pointer-events: none;
+}
+
+.flux-bottom-ui>* {
+    pointer-events: auto;
+}
+
+/* Optimize Artplayer's default shadow to be smoother and taller */
+.art-video-player .art-bottom {
+    background-image: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.3) 60%, transparent 100%) !important;
+    height: 250px !important;
+    /* Make the shadow area even taller for better visibility */
+    pointer-events: none !important;
+    bottom: 0 !important;
+    top: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
+    justify-content: flex-end !important;
+}
+
+.art-video-player .art-controls {
+    background: none !important;
+    /* Remove the secondary strip */
+}
+
+.flux-movie-branding {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0;
+    margin-bottom: 35px;
+    /* Minimal space for seek bar + time */
+}
+
+.flux-label {
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.flux-logo {
+    height: 70px;
+    width: auto;
+    object-fit: contain;
+}
+
+.flux-progress-container {
+    position: absolute;
+    bottom: 10px;
+    left: 40px;
+    right: 40px;
+    z-index: 50;
+}
+
+.flux-time-row {
+    display: flex;
+    justify-content: space-between;
+    color: #ffffff !important;
+    /* White timestamp */
+    font-size: 16px !important;
+    /* Larger size */
+    font-weight: 700;
+    font-family: monospace;
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.8);
+}
+
+/* Overriding Artplayer's built-in progress bar */
+/* Overriding Artplayer's built-in progress bar */
+.art-video-player .art-progress {
+    height: 6px !important;
+    position: absolute !important;
+    bottom: 50px !important;
+    top: auto !important;
+    left: 40px !important;
+    right: 40px !important;
+    width: calc(100% - 80px) !important;
+    z-index: 20 !important;
+    /* Ensure it's on top of other elements at the bottom */
+}
+
+.art-video-player .art-progress-played {
+    background: var(--color-flux-blue) !important;
+}
+
+.art-video-player .art-progress-indicator {
+    display: none !important;
+}
+
+/* Universal SVG Styling */
+.art-video-player svg {
+    fill: none !important;
+    stroke: currentColor !important;
+    stroke-width: 2px !important;
+}
+
+.flux-play-center svg {
+    fill: currentColor !important;
 }
