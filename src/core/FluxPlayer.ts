@@ -68,6 +68,13 @@ export class FluxPlayer extends EventEmitter<FluxEvents> {
     });
 
     this.art.on('ready', () => {
+      // 3. Branded Console Mark
+      console.log(
+        `%c FluxPlayer %c v1.0.0 %c https://github.com/kinyafilms0/fluxplayer `,
+        'background: #1fd6fb; padding: 2px; border-radius: 3px 0 0 3px; color: #fff; font-weight: bold;',
+        'background: #35495e; padding: 2px; color: #fff;',
+        'background: transparent; padding: 2px; color: #1fd6fb;'
+      );
       this.art.notice.show = 'FLUX MASTER UI LOADED';
       console.log('FLUX: Clean Slate Active');
     });
@@ -105,6 +112,20 @@ export class FluxPlayer extends EventEmitter<FluxEvents> {
   public play() { this.art.play(); }
   public pause() { this.art.pause(); }
   public seek(time: number) { this.art.currentTime = time; }
+
+  /**
+   * Get current playback time in seconds
+   */
+  get currentTime(): number {
+    return this.art.currentTime;
+  }
+
+  /**
+   * Get total video duration in seconds
+   */
+  get duration(): number {
+    return this.art.duration;
+  }
   public destroy() {
     this.art.destroy();
     if (this.hls) this.hls.destroy();
