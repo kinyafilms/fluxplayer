@@ -2,10 +2,15 @@
   "name": "fluxplayer",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "./dist/fluxplayer.umd.js",
+  "module": "./dist/fluxplayer.es.js",
+  "types": "./dist/src/index.d.ts",
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "vite",
-    "build": "tsc && vite build",
+    "build": "vite build",
     "preview": "vite preview"
   },
   "repository": {
@@ -33,6 +38,7 @@
     "@types/hls.js": "^0.13.3",
     "@types/node": "^25.6.0",
     "typescript": "^6.0.3",
-    "vite": "^8.0.8"
+    "vite": "^8.0.8",
+    "vite-plugin-dts": "^4.5.4"
   }
 }

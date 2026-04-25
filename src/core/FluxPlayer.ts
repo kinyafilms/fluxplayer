@@ -22,9 +22,9 @@ export class FluxPlayer extends EventEmitter<FluxEvents> {
         /* Hide default Artplayer gradients and shadows */
         .art-video-container { background: #000 !important; }
         .art-controls { background: transparent !important; background-image: none !important; }
-        .art-notice { color: #00FFFF !important; font-weight: bold !important; text-shadow: 0 0 10px rgba(0,255,255,0.5) !important; }
-        .art-progress-played { background: #00FFFF !important; }
-        .art-progress-indicator { background: #00FFFF !important; border: none !important; box-shadow: 0 0 8px #00FFFF !important; }
+        .art-notice { color: #1fd6fb !important; font-weight: bold !important; text-shadow: 0 0 10px rgba(31,214,251,0.5) !important; }
+        .art-progress-played { background: #1fd6fb !important; }
+        .art-progress-indicator { background: #1fd6fb !important; border: none !important; box-shadow: 0 0 8px #1fd6fb !important; }
       `;
       document.head.appendChild(style);
     }
@@ -34,9 +34,11 @@ export class FluxPlayer extends EventEmitter<FluxEvents> {
       ...artOptions,
       container,
       url,
-      theme: '#00FFFF',
+      theme: '#1fd6fb',
       autoSize: true,
       fullscreenWeb: true,
+      muted: false,
+      volume: 1,
       setting: true,
       playbackRate: true,
       aspectRatio: true,
@@ -45,6 +47,14 @@ export class FluxPlayer extends EventEmitter<FluxEvents> {
         loading: Icons.play, // Use play icon as a clean loader for now
         state: Icons.play,
         indicator: '<div style="width: 12px; height: 12px; background: #00FFFF; border-radius: 50%;"></div>',
+        play: Icons.play,
+        pause: Icons.pause,
+        volume: Icons.volume,
+        volumeClose: Icons.mute,
+        setting: Icons.settings,
+        pip: Icons.pip,
+        fullscreenOn: Icons.fullscreen,
+        fullscreenOff: Icons.exitFullscreen,
       },
       plugins: [
         FluxUI,
