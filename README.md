@@ -77,32 +77,7 @@ player.seek(120); // Seek to 2 minutes
 
 ---
 
-## 📦 Publishing to NPM
-
-To get this library on NPM, follow these steps:
-
-### 1. Prepare your Account
-If you haven't already, create an account on [npmjs.com](https://www.npmjs.com/) and log in via your terminal:
-```bash
-npm login
-```
-
-### 2. Finalize Package Configuration
-Ensure your `package.json` has the correct metadata (Name, Version, Author, etc.). The current configuration is already optimized for library distribution.
-
-### 3. Build the Project
-Run the build script to generate the production bundles in the `dist` folder:
-```bash
-npm run build
-```
-
-### 4. Publish
-Push the library to the NPM registry:
-```bash
-npm publish --access public
-```
-
-*Note: Every time you want to publish an update, you must increment the `version` number in `package.json`.*
+---
 
 ## 📄 License
 This project is licensed under the ISC License.
