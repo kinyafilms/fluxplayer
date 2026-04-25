@@ -70,7 +70,7 @@ export class FluxPlayer extends EventEmitter<FluxEvents> {
     this.art.on('ready', () => {
       // 3. Branded Console Mark
       console.log(
-        `%c FluxPlayer %c v1.0.0 %c https://github.com/kinyafilms0/fluxplayer `,
+        `%c FluxPlayer %c v1.0.1 %c https://github.com/kinyafilms0/fluxplayer `,
         'background: #1fd6fb; padding: 2px; border-radius: 3px 0 0 3px; color: #fff; font-weight: bold;',
         'background: #35495e; padding: 2px; color: #fff;',
         'background: transparent; padding: 2px; color: #1fd6fb;'
