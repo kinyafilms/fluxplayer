@@ -15,16 +15,16 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Gasanaelie/fluxplayer.git"
+    "url": "git+https://github.com/kinyafilms0/fluxplayer.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
   "type": "module",
   "bugs": {
-    "url": "https://github.com/Gasanaelie/fluxplayer/issues"
+    "url": "https://github.com/kinyafilms0/fluxplayer/issues"
   },
-  "homepage": "https://github.com/Gasanaelie/fluxplayer#readme",
+  "homepage": "https://github.com/kinyafilms0/fluxplayer#readme",
   "dependencies": {
     "@tailwindcss/vite": "^4.2.2",
     "artplayer": "^5.4.0",
