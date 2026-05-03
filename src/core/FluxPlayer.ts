@@ -3,11 +3,13 @@ import Hls from 'hls.js';
 import { EventEmitter } from 'eventemitter3';
 import { FluxUI } from '../ui/FluxUI';
 import { Icons } from '../ui/icons';
+import { AnalyticsManager } from './Analytics';
 import type { FluxPlayerOptions, FluxEvents } from '../types';
 
 export class FluxPlayer extends EventEmitter<FluxEvents> {
   public art: Artplayer;
   private hls: Hls | null = null;
+  private analytics: AnalyticsManager | null = null;
 
   constructor(options: FluxPlayerOptions) {
     super();
@@ -79,6 +81,10 @@ export class FluxPlayer extends EventEmitter<FluxEvents> {
       console.log('FLUX: Clean Slate Active');
     });
 
+    if (options.analytics?.enabled) {
+      this.analytics = new AnalyticsManager(this.art, options.analytics);
+    }
+
     this.initEvents();
   }
 
@@ -107,6 +113,7 @@ export class FluxPlayer extends EventEmitter<FluxEvents> {
       });
     });
     this.art.on('error', (error) => this.emit('error', error));
+    this.art.on('analytics:event', (payload) => this.emit('analytics:event', payload));
   }
 
   public play() { this.art.play(); }
@@ -129,5 +136,6 @@ export class FluxPlayer extends EventEmitter<FluxEvents> {
   public destroy() {
     this.art.destroy();
     if (this.hls) this.hls.destroy();
+    if (this.analytics) this.analytics.destroy();
   }
 }

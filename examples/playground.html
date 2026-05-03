@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FluxPlayer Analytics Playground</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            background: #0a0a0a;
+            color: #fff;
+            font-family: 'Inter', sans-serif;
+        }
+        #player {
+            aspect-ratio: 16 / 9;
+            width: 100%;
+            background: #000;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+        }
+        .log-container {
+            height: 400px;
+            overflow-y: auto;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 8px;
+            padding: 1rem;
+            font-family: 'Fira Code', monospace;
+            font-size: 0.85rem;
+        }
+        .log-entry {
+            margin-bottom: 0.5rem;
+            padding-bottom: 0.5rem;
+            border-bottom: 1px solid #222;
+        }
+        .tag-view { background: #3b82f6; }
+        .tag-heartbeat { background: #10b981; }
+        .tag-milestone { background: #8b5cf6; }
+        .tag-buffering { background: #ef4444; }
+        .tag {
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            font-weight: bold;
+            margin-right: 8px;
+        }
+    </style>
+</head>
+
+<body class="p-8">
+    <div class="max-w-6xl mx-auto">
+        <header class="mb-8">
+            <h1 class="text-3xl font-bold text-cyan-400 mb-2">Analytics Playground</h1>
+            <p class="text-gray-400">Test real-time video tracking, heartbeats, and milestones.</p>
+        </header>
+
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <!-- Player Column -->
+            <div class="lg:col-span-2">
+                <div id="player"></div>
+                
+                <div class="mt-6 grid grid-cols-2 gap-4">
+                    <div class="bg-zinc-900 p-4 rounded-lg border border-zinc-800">
+                        <div class="text-xs text-zinc-500 uppercase font-bold mb-1">Watch Time</div>
+                        <div id="stat-watchtime" class="text-2xl font-mono text-cyan-400">0.00s</div>
+                    </div>
+                    <div class="bg-zinc-900 p-4 rounded-lg border border-zinc-800">
+                        <div class="text-xs text-zinc-500 uppercase font-bold mb-1">Last Milestone</div>
+                        <div id="stat-milestone" class="text-2xl font-mono text-purple-400">None</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Logs Column -->
+            <div class="flex flex-col">
+                <div class="flex justify-between items-center mb-2">
+                    <h2 class="text-sm font-bold uppercase text-zinc-500 tracking-widest">Event Feed</h2>
+                    <button id="clear-logs" class="text-xs text-zinc-400 hover:text-white">Clear</button>
+                </div>
+                <div id="logs" class="log-container flex-grow">
+                    <div class="text-zinc-600 italic">Waiting for events...</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { FluxPlayer } from '../src/index.ts';
+
+        const logsEl = document.getElementById('logs');
+        const watchTimeEl = document.getElementById('stat-watchtime');
+        const milestoneEl = document.getElementById('stat-milestone');
+
+        function addLog(payload) {
+            if (logsEl.children.length === 1 && logsEl.querySelector('.italic')) {
+                logsEl.innerHTML = '';
+            }
+
+            const entry = document.createElement('div');
+            entry.className = 'log-entry';
+            
+            const time = new Date().toLocaleTimeString();
+            const tagClass = `tag-${payload.event}`;
+            
+            entry.innerHTML = `
+                <div class="flex items-center mb-1">
+                    <span class="tag ${tagClass}">${payload.event}</span>
+                    <span class="text-zinc-500 text-[10px]">${time}</span>
+                </div>
+                <pre class="text-zinc-300 text-[11px] overflow-x-auto">${JSON.stringify(payload, null, 2)}</pre>
+            `;
+            
+            logsEl.prepend(entry);
+
+            // Update Stats
+            if (payload.totalWatchTime) {
+                watchTimeEl.textContent = payload.totalWatchTime.toFixed(2) + 's';
+            }
+            if (payload.milestone) {
+                milestoneEl.textContent = payload.milestone + '%';
+            }
+        }
+
+        const player = new FluxPlayer({
+            container: '#player',
+            url: 'https://vz-44d28b77-702.b-cdn.net/59eec274-f007-433b-a4fd-ba3cd319bb8e/playlist.m3u8',
+            logoUrl: 'https://hunhqcyiabjnxbwpjlma.supabase.co/storage/v1/object/public/kinyafilms_movie_bucket/logos/Troll@.png',
+            logoAlt: 'Troll 2',
+            logoLabel: 'Demo',
+            autoplay: false,
+            muted: false,
+            analytics: {
+                enabled: true,
+                videoId: 'playground-test-1',
+                endpoint: 'http://localhost:3001/api/analytics', // Point to mock server
+                heartbeatInterval: 5,
+            }
+        });
+
+        // Hook into the player's internal analytics event emitter
+        player.on('analytics:event', (payload) => {
+            addLog(payload);
+        });
+
+        document.getElementById('clear-logs').onclick = () => {
+            logsEl.innerHTML = '<div class="text-zinc-600 italic">Waiting for events...</div>';
+        };
+    </script>
+</body>
+
+</html>

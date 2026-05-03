@@ -1,6 +1,6 @@
 {
   "name": "fluxplayer",
-  "version": "1.0.2",
+  "version": "1.1.0",
   "description": "",
   "main": "./dist/fluxplayer.umd.js",
   "module": "./dist/fluxplayer.es.js",
@@ -11,7 +11,8 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "analytics-server": "node examples/analytics-mock-server.js"
   },
   "repository": {
     "type": "git",

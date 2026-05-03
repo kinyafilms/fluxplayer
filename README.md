@@ -33,7 +33,7 @@ yarn add fluxplayer
 
 ```javascript
 import { FluxPlayer } from 'fluxplayer';
-import 'fluxplayer/dist/style.css';
+import 'fluxplayer/dist/fluxplayer.css';
 
 const player = new FluxPlayer({
     container: '#player',
@@ -69,13 +69,51 @@ player.pause();
 player.seek(120); // Seek to 2 minutes
 ```
 
-### HTML Structure
+### 📊 Analytics
+FluxPlayer includes a built-in analytics engine to track user engagement, watch hours, and content performance.
 
-```html
-<div id="player" style="width: 100%; height: 500px;"></div>
+```javascript
+const player = new FluxPlayer({
+    container: '#player',
+    url: 'video.m3u8',
+    analytics: {
+        enabled: true,
+        videoId: 'my-unique-video-id',
+        endpoint: 'https://api.yourdomain.com/v1/analytics',
+        heartbeatInterval: 10, // Report watch time every 10 seconds
+        metadata: {
+            category: 'Action',
+            series: 'Example Series'
+        }
+    }
+});
+
+// Hook into local analytics events
+player.on('analytics:event', (payload) => {
+    console.log(`Tracked: ${payload.event}`, payload);
+});
 ```
 
+#### Tracked Metrics:
+- **Views**: Sent on the very first play.
+- **Heartbeats**: Active watch time updates.
+- **Milestones**: Automatic events at 25%, 50%, 75%, and 100% completion.
+- **Buffering**: Frequency and duration of playback stalls.
+- **Exit Tracking**: Final watch time sent via Beacon API when the user leaves the page.
+
+### 🧪 Local Testing
+We provide a playground and a mock server to test your analytics integration:
+
+1. **Start the Mock Server**:
+   ```bash
+   npm run analytics-server
+   ```
+2. **Open the Playground**:
+   Navigate to `examples/playground.html` in your browser.
+
 ---
+
+## 🛠️ Development
 
 ---
 

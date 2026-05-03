@@ -39,9 +39,19 @@
             logoLabel: 'Movie',
             autoplay: true,
             muted: false,
+            analytics: {
+                enabled: true,
+                videoId: 'troll-2-demo',
+                endpoint: '/api/analytics', // Example endpoint
+                heartbeatInterval: 5, // Heartbeat every 5 seconds
+            }
         });
 
         player.on('play', () => console.log('FluxPlayer: Playing'));
+        
+        player.on('analytics:event', (payload) => {
+            console.log('Analytics Event Received:', payload.event, payload);
+        });
 
         player.on('timeupdate', (data) => {
             console.log(`Time: ${data.currentTime.toFixed(2)} / ${data.duration.toFixed(2)}`);
