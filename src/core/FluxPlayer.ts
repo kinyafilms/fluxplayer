@@ -72,7 +72,7 @@ export class FluxPlayer extends EventEmitter<FluxEvents> {
     this.art.on('ready', () => {
       // 3. Branded Console Mark
       console.log(
-        `%c FluxPlayer %c v1.0.2 %c https://github.com/kinyafilms0/fluxplayer `,
+        `%c FluxPlayer %c v1.2.0 %c https://github.com/kinyafilms0/fluxplayer `,
         'background: #1fd6fb; padding: 2px; border-radius: 3px 0 0 3px; color: #fff; font-weight: bold;',
         'background: #35495e; padding: 2px; color: #fff;',
         'background: transparent; padding: 2px; color: #1fd6fb;'
@@ -91,7 +91,80 @@ export class FluxPlayer extends EventEmitter<FluxEvents> {
   private handleHls(video: HTMLMediaElement, url: string, art: Artplayer) {
     if (Hls.isSupported()) {
       if (this.hls) this.hls.destroy();
-      const hls = new Hls();
+      const hls = new Hls({
+        enableWorker: true,
+        // Increase retries for manifest but fail fast on levels if they 404
+        manifestLoadingMaxRetry: 3,
+        levelLoadingMaxRetry: 1, 
+        xhrSetup: (xhr, url) => {
+          xhr.withCredentials = false;
+        },
+      });
+
+      hls.on(Hls.Events.ERROR, (event, data) => {
+        if (data.fatal) {
+          switch (data.type) {
+            case Hls.ErrorTypes.NETWORK_ERROR:
+              // Only restart if the master manifest or a critical segment fails
+              if (data.details === Hls.ErrorDetails.MANIFEST_LOAD_ERROR) {
+                console.error('FluxPlayer: Fatal manifest load error');
+                art.notice.show = 'Network Error: Failed to load playlist';
+              } else {
+                console.warn('FluxPlayer: Fatal network error, attempting recovery...');
+                hls.startLoad();
+              }
+              break;
+            case Hls.ErrorTypes.MEDIA_ERROR:
+              console.warn('FluxPlayer: Fatal media error, attempting recovery...');
+              hls.recoverMediaError();
+              break;
+            default:
+              console.error('FluxPlayer: Unrecoverable error', data);
+              hls.destroy();
+              break;
+          }
+        }
+
+        // Handle Level Load Errors (404 on specific quality)
+        if (data.details === Hls.ErrorDetails.LEVEL_LOAD_ERROR) {
+          const level = hls.levels[data.level];
+          const label = level ? (level.name || level.height + 'P') : 'Unknown';
+          
+          console.warn(`FluxPlayer: Quality level "${label}" failed to load (404).`);
+          
+          // If we have other levels, blacklist this one for a while
+          if (hls.levels.length > 1) {
+            // HLS.js internally handles blacklisting if we report the error
+            // But we can also try to force a level switch to avoid "restarts"
+            const nextLevel = hls.levels.findIndex((l, i) => i !== data.level);
+            if (nextLevel !== -1) {
+              console.log(`FluxPlayer: Switching to fallback level...`);
+              hls.currentLevel = nextLevel;
+            }
+          } else {
+            art.notice.show = 'Video quality unavailable';
+          }
+        }
+      });
+
+      hls.on(Hls.Events.MANIFEST_PARSED, () => {
+        if (hls.levels.length > 0) {
+          // Find the highest quality level (by height or bandwidth)
+          let highestLevelIndex = 0;
+          let maxHeight = 0;
+          
+          hls.levels.forEach((level, index) => {
+            if (level.height > maxHeight) {
+              maxHeight = level.height;
+              highestLevelIndex = index;
+            }
+          });
+
+          console.log(`FluxPlayer: Defaulting to highest quality level: ${maxHeight}P (Level ${highestLevelIndex})`);
+          hls.startLevel = highestLevelIndex;
+        }
+      });
+
       hls.loadSource(url);
       hls.attachMedia(video);
       this.hls = hls;
