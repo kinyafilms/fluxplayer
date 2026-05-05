@@ -14,7 +14,7 @@ import {
   RotateCcw,
   RotateCw,
   ChevronRight,
-  Loader
+  Loader2
 } from 'lucide-static';
 
 function wrap(svg: string, fill: boolean = false) {
@@ -45,5 +45,5 @@ export const Icons = {
   rewind: wrap(RotateCcw),
   forward: wrap(RotateCw),
   next: wrap(ChevronRight),
-  loader: wrap(Loader)
+  loader: wrap(Loader2)
 };

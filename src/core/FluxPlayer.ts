@@ -15,6 +15,11 @@ export class FluxPlayer extends EventEmitter<FluxEvents> {
     super();
 
     const { container, url, ...artOptions } = options;
+    
+    // Add loading class immediately if it's HLS to show the loader during init
+    if (url.toLowerCase().includes('.m3u8') && container instanceof HTMLElement) {
+        container.classList.add('flux-is-loading');
+    }
 
     // 1. Force-Inject Essential Global Styles (Clean Slate)
     if (!document.getElementById('flux-master-style')) {
@@ -72,12 +77,11 @@ export class FluxPlayer extends EventEmitter<FluxEvents> {
     this.art.on('ready', () => {
       // 3. Branded Console Mark
       console.log(
-        `%c FluxPlayer %c v1.2.0 %c https://github.com/kinyafilms0/fluxplayer `,
+        `%c FluxPlayer %c v1.3.0 %c https://github.com/kinyafilms0/fluxplayer `,
         'background: #1fd6fb; padding: 2px; border-radius: 3px 0 0 3px; color: #fff; font-weight: bold;',
         'background: #35495e; padding: 2px; color: #fff;',
         'background: transparent; padding: 2px; color: #1fd6fb;'
       );
-      this.art.notice.show = 'FLUX MASTER UI LOADED';
       console.log('FLUX: Clean Slate Active');
     });
 
@@ -93,10 +97,12 @@ export class FluxPlayer extends EventEmitter<FluxEvents> {
       if (this.hls) this.hls.destroy();
       const hls = new Hls({
         enableWorker: true,
-        // Increase retries for manifest but fail fast on levels if they 404
-        manifestLoadingMaxRetry: 3,
-        levelLoadingMaxRetry: 1, 
-        xhrSetup: (xhr, url) => {
+        // Increase retries and add delays for better stability on Bunny.net/CDNs
+        manifestLoadingMaxRetry: 6,
+        levelLoadingMaxRetry: 4,
+        levelLoadingRetryDelay: 2000,
+        manifestLoadingRetryDelay: 2000,
+        xhrSetup: (xhr) => {
           xhr.withCredentials = false;
         },
       });
@@ -109,6 +115,7 @@ export class FluxPlayer extends EventEmitter<FluxEvents> {
               if (data.details === Hls.ErrorDetails.MANIFEST_LOAD_ERROR) {
                 console.error('FluxPlayer: Fatal manifest load error');
                 art.notice.show = 'Network Error: Failed to load playlist';
+                this.setLoading(false);
               } else {
                 console.warn('FluxPlayer: Fatal network error, attempting recovery...');
                 hls.startLoad();
@@ -132,17 +139,8 @@ export class FluxPlayer extends EventEmitter<FluxEvents> {
           
           console.warn(`FluxPlayer: Quality level "${label}" failed to load (404).`);
           
-          // If we have other levels, blacklist this one for a while
-          if (hls.levels.length > 1) {
-            // HLS.js internally handles blacklisting if we report the error
-            // But we can also try to force a level switch to avoid "restarts"
-            const nextLevel = hls.levels.findIndex((l, i) => i !== data.level);
-            if (nextLevel !== -1) {
-              console.log(`FluxPlayer: Switching to fallback level...`);
-              hls.currentLevel = nextLevel;
-            }
-          } else {
-            art.notice.show = 'Video quality unavailable';
+          if (hls.levels.length <= 1) {
+            art.notice.show = `Quality ${label} unavailable`;
           }
         }
       });
@@ -160,18 +158,42 @@ export class FluxPlayer extends EventEmitter<FluxEvents> {
             }
           });
 
-          console.log(`FluxPlayer: Defaulting to highest quality level: ${maxHeight}P (Level ${highestLevelIndex})`);
-          hls.startLevel = highestLevelIndex;
+          console.log(`FluxPlayer: Locking to highest quality level: ${maxHeight}P (Level ${highestLevelIndex})`);
+          // Use currentLevel instead of startLevel to LOCK the quality and disable ABR
+          hls.currentLevel = highestLevelIndex;
         }
       });
+      
+      hls.on(Hls.Events.LEVEL_LOADED, () => {
+        // Removal is handled by video:canplay event for consistency
+      });
 
+      this.setLoading(true);
       hls.loadSource(url);
       hls.attachMedia(video);
       this.hls = hls;
       (art as any).hls = hls;
       art.on('destroy', () => hls.destroy());
     } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      this.setLoading(true);
       video.src = url;
+      art.on('video:loadedmetadata', () => {
+        this.setLoading(false);
+      });
+    }
+  }
+
+  private setLoading(show: boolean) {
+    this.art.loading.show = show;
+    const container = this.art.container;
+    const player = this.art.template.$container;
+    
+    if (show) {
+      if (container instanceof HTMLElement) container.classList.add('flux-is-loading');
+      if (player && 'classList' in player) (player as any).classList.add('flux-is-loading');
+    } else {
+      if (container instanceof HTMLElement) container.classList.remove('flux-is-loading');
+      if (player && 'classList' in player) (player as any).classList.remove('flux-is-loading');
     }
   }
 
@@ -179,6 +201,9 @@ export class FluxPlayer extends EventEmitter<FluxEvents> {
     this.art.on('video:play', () => this.emit('play'));
     this.art.on('video:pause', () => this.emit('pause'));
     this.art.on('video:ended', () => this.emit('ended'));
+    this.art.on('video:canplay', () => {
+      this.setLoading(false);
+    });
     this.art.on('video:timeupdate', () => {
       this.emit('timeupdate', {
         currentTime: this.art.currentTime,
