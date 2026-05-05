@@ -107,7 +107,7 @@ export class FluxPlayer extends EventEmitter<FluxEvents> {
         },
       });
 
-      hls.on(Hls.Events.ERROR, (event, data) => {
+      hls.on(Hls.Events.ERROR, (_event, data) => {
         if (data.fatal) {
           switch (data.type) {
             case Hls.ErrorTypes.NETWORK_ERROR:
@@ -133,7 +133,7 @@ export class FluxPlayer extends EventEmitter<FluxEvents> {
         }
 
         // Handle Level Load Errors (404 on specific quality)
-        if (data.details === Hls.ErrorDetails.LEVEL_LOAD_ERROR) {
+        if (data.details === Hls.ErrorDetails.LEVEL_LOAD_ERROR && data.level !== undefined) {
           const level = hls.levels[data.level];
           const label = level ? (level.name || level.height + 'P') : 'Unknown';
           
@@ -185,7 +185,7 @@ export class FluxPlayer extends EventEmitter<FluxEvents> {
 
   private setLoading(show: boolean) {
     this.art.loading.show = show;
-    const container = this.art.container;
+    const container = (this.art as any).container;
     const player = this.art.template.$container;
     
     if (show) {

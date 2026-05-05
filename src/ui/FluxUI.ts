@@ -159,12 +159,12 @@ export function FluxUI(art: Artplayer) {
 
                 if (level !== undefined && hls) {
                     art.loading.show = true;
-                    art.container.classList.add('flux-is-loading');
+                    (art as any).container.classList.add('flux-is-loading');
                     hls.currentLevel = parseInt(level);
                     // Quality switch removal is handled in FluxPlayer.ts
                 } else if (url) {
                     art.loading.show = true;
-                    art.container.classList.add('flux-is-loading');
+                    (art as any).container.classList.add('flux-is-loading');
                     art.switchQuality(url);
                 }
                 
