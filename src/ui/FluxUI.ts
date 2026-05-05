@@ -92,7 +92,11 @@ export function FluxUI(art: Artplayer) {
 
       qualityBtn?.addEventListener('click', (e) => {
         e.stopPropagation();
-        qualityWrapper?.classList.toggle('is-open');
+        // Only toggle menu if there's something to select (more than 1 level or multiple URLs)
+        const items = qualityMenu?.querySelectorAll('.flux-quality-item');
+        if (items && items.length > 1) {
+            qualityWrapper?.classList.toggle('is-open');
+        }
       });
 
       // Close menu when clicking outside
@@ -108,26 +112,25 @@ export function FluxUI(art: Artplayer) {
         let html = '';
         let currentLabel = 'Auto';
         
-        // If HLS levels exist
+        // If HLS levels exist, we only want to show the highest one as it's the only one working
         const hls = (art as any).hls;
         if (hls && hls.levels && hls.levels.length > 0) {
-            html += `<div class="flux-quality-item ${hls.currentLevel === -1 ? 'is-active' : ''}" data-level="-1">Auto</div>`;
-            if (hls.currentLevel === -1) currentLabel = 'Auto';
-
+            // Find the highest quality level
+            let highestIndex = 0;
+            let maxHeight = 0;
             hls.levels.forEach((level: any, index: number) => {
-                // Better label generation: check for name, then height, then fallback to index
-                let label = level.name;
-                if (!label && level.height && level.height > 0) {
-                    label = `${level.height}P`;
+                if (level.height > maxHeight) {
+                    maxHeight = level.height;
+                    highestIndex = index;
                 }
-                if (!label) {
-                    label = `Quality ${index + 1}`;
-                }
-
-                const isActive = hls.currentLevel === index;
-                html += `<div class="flux-quality-item ${isActive ? 'is-active' : ''}" data-level="${index}">${label}</div>`;
-                if (isActive) currentLabel = label;
             });
+
+            const level = hls.levels[highestIndex];
+            const label = level.name || (level.height ? `${level.height}P` : 'HD');
+            
+            // Only show this single working quality
+            html = `<div class="flux-quality-item is-active" data-level="${highestIndex}">${label}</div>`;
+            currentLabel = label;
         } else if (art.option.quality && art.option.quality.length > 0) {
             art.option.quality.forEach((item: any) => {
                 const isActive = art.option.url === item.url;
@@ -138,6 +141,14 @@ export function FluxUI(art: Artplayer) {
 
         if (qualityCurrent) qualityCurrent.textContent = currentLabel;
         qualityMenu.innerHTML = html;
+        
+        // Add/remove class for CSS styling (e.g. cursor)
+        const items = qualityMenu.querySelectorAll('.flux-quality-item');
+        if (items.length > 1) {
+            qualityWrapper?.classList.remove('no-menu');
+        } else {
+            qualityWrapper?.classList.add('no-menu');
+        }
 
         // Bind clicks
         qualityMenu.querySelectorAll('.flux-quality-item').forEach(item => {
@@ -148,9 +159,12 @@ export function FluxUI(art: Artplayer) {
 
                 if (level !== undefined && hls) {
                     art.loading.show = true;
+                    art.container.classList.add('flux-is-loading');
                     hls.currentLevel = parseInt(level);
+                    // Quality switch removal is handled in FluxPlayer.ts
                 } else if (url) {
                     art.loading.show = true;
+                    art.container.classList.add('flux-is-loading');
                     art.switchQuality(url);
                 }
                 

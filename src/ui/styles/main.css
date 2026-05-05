@@ -32,8 +32,10 @@
 
 /* Loading Spinner */
 .art-loading {
-    background: rgba(0, 0, 0, 0.4) !important;
-    backdrop-filter: blur(10px);
+    background: none !important;
+    backdrop-filter: none !important;
+    z-index: 150 !important;
+    pointer-events: none !important;
 }
 
 .art-loading .art-icon {
@@ -156,6 +158,12 @@
 .flux-quality-btn:hover {
     background: rgba(255, 255, 255, 0.2);
     transform: scale(1.05);
+}
+
+.flux-quality-wrapper.no-menu .flux-quality-btn {
+    cursor: default;
+    transform: none !important;
+    background: none !important;
 }
 
 .flux-quality-btn svg {
@@ -306,10 +314,8 @@
     background: rgba(31, 214, 251, 0.4);
 }
 
-/* Hide default Artplayer state/loading/notices to avoid duplicates */
-.art-video-player .art-state,
-.art-video-player .art-loading,
-.art-video-player .art-notice {
+/* Reverted to default Artplayer loading behavior for debugging */
+.art-video-player .art-state {
     display: none !important;
 }
 
